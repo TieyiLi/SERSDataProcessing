@@ -1,0 +1,49 @@
+import numpy as np
+import os, shutil, re
+from renishawWiRE import WDFReader
+from numpy.random import default_rng
+
+
+def export_wdf(source_folder_path, export_folder_path):
+    '''Only apply for course map plus fine map, 2-dimensional fine map!
+    Only apply for square map!
+    '''
+    pattern = re.compile('_')
+    for sample_folder_name in os.listdir(source_folder_path):
+        sample_folder_path = os.path.join(source_folder_path, sample_folder_name)
+        export_sample_folder_path = os.path.join(export_folder_path, sample_folder_name)
+        if not os.path.exists(export_sample_folder_path):
+            os.makedirs(export_sample_folder_path)
+
+        for map_name in os.listdir(sample_folder_path):
+            if '@' in map_name:
+                split = pattern.split(map_name)
+                map_id = split[1]
+                wdf_path = os.path.join(sample_folder_path, map_name)
+
+                wdf_reader = WDFReader(wdf_path)
+                wavenumber = wdf_reader.xdata
+                collection = wdf_reader.spectra
+                x_pos = wdf_reader.xpos
+                y_pos = wdf_reader.ypos
+
+                # print(collection.ndim)
+
+                map_dir = os.path.join(export_sample_folder_path, 'map' + map_id)
+                if not os.path.exists(map_dir):
+                    os.makedirs(map_dir)
+
+                if collection.ndim == 3:
+                    start = 0
+                    for i in range(collection.shape[0]):
+                        for j in range(collection.shape[1]):
+                            spec_name = map_name + '_X_' + str(x_pos[start]) + '_Y_' + str(y_pos[start]) + '.txt'
+                            spec_path = os.path.join(map_dir, spec_name)
+
+                            spectrum = np.empty(shape=(wavenumber.shape[0], 2))
+                            spectrum[:, 0], spectrum[:, 1] = wavenumber, collection[i][j]
+
+                            np.savetxt(fname=spec_path, X=spectrum, fmt='%.6f')
+                            start += 1
+                else:
+                    print(wdf_path)

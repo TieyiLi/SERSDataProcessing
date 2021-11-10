@@ -9,7 +9,7 @@ cross validation as well as the follow-up evaluations.
 
 import numpy as np
 from sklearn.model_selection import KFold
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, recall
 
 
 def accuracy_by_maps(y_true, y_pred, map_index_test):
@@ -48,6 +48,47 @@ def accuracy_by_maps(y_true, y_pred, map_index_test):
     
     else:
         raise ValueError('Inconsistent input dimensions!')
+        
+def regular_CV(estimator, X, y, splitter, output='accuracy'):
+    """
+    This function performs the regular cross-validation, thus using each spectra as a unit.
+
+    Parameters
+    ----------
+    estimator: classification model
+    X: total data matrix
+    y: group truth or training label
+    splitter: cross-validation dataset splitter in sklearn.model_selection module, default
+              StratifiedShuffleSplit
+    output: show validation metrics for each round
+
+    Returns
+    -------
+    None
+    """
+    
+    round = 1
+    for training_idx, val_idx in splitter.split(X, y):
+        print('Cross validation round %d: ' % round, end='')
+        X_train, y_train = X[training_idx], y[training_idx]
+        X_val, y_val = X[val_idx], y[val_idx]
+        estimator.fit(X_train, y_train)
+        y_pred = estimator.predict(X_val)
+        if output == 'accuracy':
+            acc_val = accuracy_score(y_val, y_pred)
+            print(acc_val)
+        elif output == 'sensi&speci':
+            if len(set(y)) == 2:
+                cfm = confusion_matrix(y_val, y_pred)
+                sensi = cfm[1,1] / (cfm[1,1] + cfm[1,0])
+                speci = cfm[0,0] / (cfm[0,0] + cfm[0,1])
+                print([sensi, speci])
+            else:
+                raise ValueError('Sensitivity and specificity only apply for binary classification!')
+        else:
+            raise ValueError('Evaluation metrics not defined!')
+        round += 1
+        
 
 def K_fold_maps_split(map_index, k):
     """

@@ -9,7 +9,7 @@ including classification, clustering and so on.
 
 import numpy as np
 import re, shutil, os
-import Utils
+From Utils import Utils
 
 
 class PrepareData(Utils):

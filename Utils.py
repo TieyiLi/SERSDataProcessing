@@ -4,8 +4,12 @@ Class for spectrum-related calculation and evaluation
 =========================================================
 
 This class includes functions for sers spectra baseline subtraction, 
-smoothing or noise reduction, normalization and quality estimation.
+smoothing or noise reduction, normalization and quality estimation as
+well as visualizations.
 """
+
+from matplotlib import ticker, patches
+import numpy as np
 
 
 class Utils:
@@ -158,3 +162,47 @@ class Utils:
         # The average of noise extracted by savgol filter as the 'N' value
         N = np.mean(abs(xx_base_sub - xx_signal))
         return S / N, xx_signal
+    
+    
+class Visulization:
+
+    def __init__(self):
+        self.cmap = ['b', 'orange', 'g', 'r', 'purple', 'peru', 'gold', 'skyblue', 'brown', 'salmon', 'darkred',
+                     'orangered', 'sienna', 'wheat']
+        # self.cmap = cm.get_cmap('tab10')
+
+    def __get_cov_ellipse(self, cov, centre, nstd, **kwargs):
+        # Return a matplotlib Ellipse patch representing the covariance matrix
+        # cov centred at centre and scaled by the factor nstd.
+
+        # Find and sort eigenvalues and eigenvectors into descending order
+        eigvals, eigvecs = np.linalg.eigh(cov)
+        order = eigvals.argsort()[::-1]
+        eigvals, eigvecs = eigvals[order], eigvecs[:, order]
+
+        # The anti-clockwise angle to rotate our ellipse by
+        vx, vy = eigvecs[:, 0][0], eigvecs[:, 0][1]
+        theta = np.arctan2(vy, vx)
+
+        # Width and height of ellipse to draw
+        width, height = 2 * nstd * np.sqrt(eigvals)
+
+        return patches.Ellipse(xy=centre, width=width, height=height, angle=np.degrees(theta), **kwargs)
+
+    def __split_group(self, label):
+        for num in list(set(label)):
+            index = [i for i, x in enumerate(label) if x == num]
+            yield [index, num]
+
+    def scatter_plot(self, ax, x, y, label, marker='o', conf_eval=False):
+        for index in self.__split_group(label):
+            if index[1] != -1:
+                xx, yy = x[index[0]], y[index[0]]
+                ax.scatter(xx, yy, c=self.cmap[index[1] % len(self.cmap)], marker=marker, label=index[1], s=10, lw=0)
+                if conf_eval:
+                    conf_ellipse = self.__get_cov_ellipse(np.cov(xx, yy), (np.mean(xx), np.mean(yy)), nstd=2.0,
+                                                        ec=self.cmap[index[1]], fill=False, alpha=0.6)
+                    ax.add_artist(conf_ellipse)
+            else:
+                xx, yy = x[index[0]], y[index[0]]
+                ax.scatter(xx, yy, c='gray', label=index[1], s=8, alpha=0.4, lw=0)

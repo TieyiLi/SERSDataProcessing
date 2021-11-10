@@ -1,3 +1,11 @@
+"""
+===============================
+Additional processing functions 
+===============================
+This class contains additional useful functions such as relabeling, summarizing 
+test results and so on.
+"""
+
 import numpy as np
 from Utils import Utils
 

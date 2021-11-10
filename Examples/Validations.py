@@ -42,7 +42,7 @@ regular_CV(X, y, splitter, output='accuracy')
 
 
 ##-------------------------------------------------LOSO cross validation-----------------------------------------------------##
-## Split the total maps into K folds for cross validation
+## Only use leave-one-sample-out cross validation for patient/healthy and each group contains more than one samples
 
 # X = data_matrix
 # y = group

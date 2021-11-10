@@ -12,8 +12,8 @@ addprep = AdditionalProcessing()
 ##===================================================Start Running===========================================================##
 ##------------------------------------------------input data dictionary------------------------------------------------------##
 
-data_path_train = r'E:\Xie group\DataAnalysis\datadict\U18\functionalization\data10_18_21_FuncCovidVariants_Batch3_subed.npy'
-data_matrix, label, group, sample_name, raman_shift, map_index = uti.input(data_path_train)
+data_dict_path = r'E:\Xie group\DataAnalysis\datadict\U18\functionalization\data10_18_21_FuncCovidVariants_Batch3_subed.npy'
+data_matrix, label, group, sample_name, raman_shift, map_index = uti.input(data_dict_path)
 
 ##------------------------------------------------input data dictionary------------------------------------------------------##
 

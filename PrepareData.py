@@ -129,14 +129,27 @@ class PrepareData(Utils):
                     1, 6), 1: np.arrange(6, 11)}
         interp: interpolating spectra or not, default 'False', when spectra are collected from
                 different Raman spectroscopy, this must be set to 'True'
-
+                
+        Dictionary keys meaning
+        ----------
+        data_matrix: 2D numpy array with the shape of (number of spectra, number of Raman shifts) 
+                     including all the spectra collection in a single study
+        sample_name: sample name of each spectra stored in a list
+        map_index: mapping name of each spectra stored in a list
+        label: 1D numpy array labeling each spectra with the sample number given by 'label_dict'
+        group: 1D numpy array labeling each spectra with higher-level group number given by 
+               'group_dict'
+        raman_shift: 1D numpy array storing the common Raman shift of all spectra
+        file_path: original (.txt) file path of each spectra
+        label_dict: 'label_dict' given in parameters
+        group_dict: 'group_dict' given in parameters
+        
         Returns
         -------
         Dictionary of spectra and corresponding properties
         """
 
-        sample_name, map_index, txt_path_list, data_matrix, label, group = \
-            [], [], [], [], [], []
+        sample_name, map_index, txt_path_list, data_matrix, label, group = [], [], [], [], [], []
         data_dict = {}
 
         pattern = re.compile(r'\\')
@@ -236,7 +249,7 @@ Example usage:
 
 >>> group_dict = {-1: [1, 2, 3, 4, 5], 1: [6, 7, 8, 9, 10]}
 >>> dir = r'D:\Tieyi Li\datanpy\Jun'
->>> file_name = 'data11_8_21_CoHSerumSamples_Colon&Control_5Each_Sub'
+>>> file_name = 'data11_8_21_CoHSerumSamples_Colon&Control_5Each_Sub' # please following this naming standard
 
 >>> data_dict = pd.read_data(data_path, label_dict, group_dict, interp=False) # comment this line after finishing to save running time
 >>> pd.save(data_dict, dir, file_name, base_sub=True, smoothing=False, norm=True) # also comment this line to prevent (.npy) file overwritten

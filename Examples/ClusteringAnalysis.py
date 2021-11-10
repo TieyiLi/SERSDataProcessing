@@ -15,8 +15,8 @@ addprep = AdditionalProcessing()
 data_path_train = r'E:\Xie group\DataAnalysis\datadict\U18\functionalization\data10_18_21_FuncCovidVariants_Batch3_subed.npy'
 data_matrix, label, group, sample_name, raman_shift, map_index = uti.input(data_path_train)
 
-##------------------------------------------------input data dictionary------------------------------------------------------##
-
+##----------------------------------------------------proprecessing----------------------------------------------------------##
+## noise reduction or smoothing
 X = uti.smoothing(data_matrix)
 
 ##------------------------------------------------compute distance matrix----------------------------------------------------##

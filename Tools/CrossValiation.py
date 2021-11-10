@@ -45,6 +45,7 @@ def accuracy_by_maps(y_true, y_pred, map_index_test):
                 correct_pred_map += 1
 
         print(str(correct_pred_map) + '/' + str(l))
+        return correct_pred_map / l
     
     else:
         raise ValueError('Inconsistent input dimensions!')
@@ -64,7 +65,7 @@ def regular_CV(estimator, X, y, splitter, output='accuracy'):
 
     Returns
     -------
-    None
+    accuracy
     """
     
     round = 1
@@ -144,9 +145,8 @@ def leave_maps_out_CV(estimator, X, y, map_index, splitter, **kwargs):
             pred[test_idx] = idx_pred
             map_index_test = [map_index[j] for j in test_idx]
 
-            print(accuracy_by_map(y[test_idx], idx_pred, map_index_test), end='\n\n')
-            # print(accuracy_score(y[test_idx], idx_pred), end='   ')
-            # print(len(idx_pred), end='\n\n')
+            acc_val = accuracy_by_map(y[test_idx], idx_pred, map_index_test)
+            
             i += 1
         return pred
     else:

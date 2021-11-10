@@ -161,7 +161,7 @@ def leave_one_sample_out(label):
         training_idx = np.setdiff1d(np.arange(L), test_idx)
         yield training_idx, test_idx, label_type
 
-def predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr=.5):
+def predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr):
     """
     This function summarizes the predictions of spectra then maps and generates the 
     prediction for each sample. The determinations of maps and samples are both based
@@ -174,6 +174,8 @@ def predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr=.5):
     y: group truth or training label
     map_index: map_index of data dictionary
     splitter: K_fold_maps_split function defined above
+    voting_thr: minimal fraction of diseased required to predict a sample as 
+                diseased
 
     Returns
     -------
@@ -198,7 +200,7 @@ def predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr=.5):
     else:
         return 0
 
-def leave_one_sample_out_CV(estimator, X, y, label, map_index):
+def leave_one_sample_out_CV(estimator, X, y, label, map_index, voting_thr=0.5):
     """
     Levae-one-sample-out cross validation.
 
@@ -209,6 +211,8 @@ def leave_one_sample_out_CV(estimator, X, y, label, map_index):
     y: group truth or training label
     label: label of data dictionary
     map_index: map_index of data dictionary
+    voting_thr: minimal fraction of diseased required to predict a sample as 
+                diseased, default 50%
 
     Returns
     -------
@@ -226,7 +230,7 @@ def leave_one_sample_out_CV(estimator, X, y, label, map_index):
         pred = estimator.predict(X[test_idx])
         map_index_each_sample = [map_index[i] for i in test_idx]
         
-        prediction_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample)
+        prediction_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr)
         true_sample_label[step] = y[test_idx[0]]
         pred_sample_label[step] = prediction_of_sample
         print(str(prediction_of_sample) + '(' + str(y[test_idx[0]]) + ')', end='\n\n')

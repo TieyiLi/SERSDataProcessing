@@ -117,7 +117,7 @@ def K_fold_maps_split(map_index, k):
         yield training_idx, test_idx
 
 
-def leave_maps_out_CV(estimator, X, y, map_index, splitter, **kwargs):
+def leave_maps_out_CV(estimator, X, y, map_index, splitter=K_fold_map_split, **kwargs):
     """
     Levae-maps-out cross validation.
 
@@ -133,7 +133,7 @@ def leave_maps_out_CV(estimator, X, y, map_index, splitter, **kwargs):
     -------
     Total predictions
     """
-
+    
     if len(X) == len(y) and len(y) == len(map_index):
         # tot_maps = len(set(map_index))
         pred = np.ones_like(y) * -1

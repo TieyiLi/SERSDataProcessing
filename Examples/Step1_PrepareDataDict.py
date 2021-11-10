@@ -4,6 +4,7 @@ from Tools.ExportWDF import export_wdf
 
 ##===================================================Export WDF to TXT===========================================================##
 ## only applicable to coarse+fine mapping
+
 source_dir_path = 'E:\Raman data\WDF data\12_21_20_ColonExosome'
 export_dir_path = 'E:\Raman data\TXT data\12_21_20_ColonExosome'
 
@@ -21,10 +22,9 @@ pd = PrepareData(source_path, export_path)
 
 ##=============================================Create Data Dictionary and Save===================================================##
 
-
 data_path = r'D:\Raman Data\Jun Liu\CoH serum sample\txt_useful_5each'
 
-## use only label_dict per time
+## define only one label_dict per time
 label_dict = pd.gen_label_dict(data_path) 
 # label_dict = {'ACE2': 1, 'Cov2_B117': 2, 'Cov2_Delta': 3, 'Cov2_WA': 4}
 # label_dict = {'v1': 1, 'v2': 2, 'v3': 3, 'v4': 4, 'v7': 7, 'v8': 8, 'v5': 5, 'v6': 6, 'v9': 9, 'v10': 10}

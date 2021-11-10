@@ -27,7 +27,7 @@ X = uti.smoothing(data_matrix)
 # X_reduce = reduce.fit_transform(X)
 
 ##..........................................................LDA..............................................................##
-reduce = LDA(n_components=2) # !!! Only applicable to multi-classes
+reduce = LDA(n_components=2) # Only applicable to multi-classes !!!
 reduce.fit(X, label) # you can switch between 'label' or 'group' depending on your distinguishing target
 X_reduced = reduce.transform(X)
 

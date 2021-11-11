@@ -233,6 +233,7 @@ def leave_one_sample_out_CV(estimator, X, y, label, map_index, voting_thr=0.5):
         prediction_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr)
         true_sample_label[step] = y[test_idx[0]]
         pred_sample_label[step] = prediction_of_sample
+        step += 1
         print(str(prediction_of_sample) + '(' + str(y[test_idx[0]]) + ')', end='\n\n')
 
     print(accuracy_score(true_sample_label, pred_sample_label))

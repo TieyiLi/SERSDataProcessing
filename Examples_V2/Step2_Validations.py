@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Tools.Utils import Utils
 from Tools.AdditionalProcessing import AdditionalProcessing
-from Tools.CrossValiation import regular_CV, leave_maps_out_CV, accuracy_by_maps, leave_one_sample_out_CV
+from Tools.CrossValidation import regular_CV, leave_maps_out_CV, accuracy_by_maps, leave_one_sample_out_CV
 from sklearn.svm import SVC
 from sklearn.model_selection import StratifiedShuffleSplit
 

@@ -247,9 +247,9 @@ Example usage:
     or label_dict = {'colon1': 6, 'control5': 5, 'control4': 4, 'control3': 3, 'control2': 2,
                      'control1': 1, 'colon10': 10, 'colon8': 9, 'colon5': 8, 'colon2': 7}
 
->>> group_dict = {-1: [1, 2, 3, 4, 5], 1: [6, 7, 8, 9, 10]}
+>>> group_dict = {0: [1, 2, 3, 4, 5], 1: [6, 7, 8, 9, 10]}
 >>> dir = r'D:\Tieyi Li\datanpy\Jun'
->>> file_name = 'data11_8_21_CoHSerumSamples_Colon&Control_5Each_Sub' # please following this naming standard
+>>> file_name = 'data11_8_21_CoHSerumSamples_Colon&Control_5Each_SubNorm' # please following this naming standard
 
 >>> data_dict = pd.read_data(data_path, label_dict, group_dict, interp=False) # comment this line after finishing to save running time
 >>> pd.save(data_dict, dir, file_name, base_sub=True, smoothing=False, norm=True) # also comment this line to prevent (.npy) file overwritten

@@ -126,7 +126,7 @@ class PrepareData(Utils):
                     1 for diseased and -1 for unknown
                     Must in the format of {integer: list of sample labels or array of sample
                     labels} such as {0: [1, 2, 3, 4, 5], 1: [6, 7, 8, 9, 10]} or {0: np.arrange(
-                    1, 6), 1: np.arrange(6, 11)}
+                    1, 6), 1: np.arrange(6, 11)} or {-1: [1, 2, 3, 4, 5, ...]}
         interp: interpolating spectra or not, default 'False', when spectra are collected from
                 different Raman spectroscopy, this must be set to 'True'
                 

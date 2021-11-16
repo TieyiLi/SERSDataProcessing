@@ -38,7 +38,7 @@ regular_CV(clf_svc, X, y, splitter, output='accuracy')
 
 # X = data_matrix
 # y = group
-# leave_maps_out_CV(X, y, map_index, k=5) # use appropriate K according to your dataset
+# leave_maps_out_CV(clf_svc, X, y, map_index, k=5) # use appropriate K according to your dataset
 
 
 ##-------------------------------------------------LOSO cross validation-----------------------------------------------------##
@@ -46,4 +46,4 @@ regular_CV(clf_svc, X, y, splitter, output='accuracy')
 
 # X = data_matrix
 # y = group
-# leave_one_sample_out_CV(X, y, label, map_index, 0.5)
+# leave_one_sample_out_CV(clf_svc, X, y, label, map_index, 0.5)

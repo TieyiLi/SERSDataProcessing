@@ -32,7 +32,7 @@ dist_mtx = distance_matrix(X)
 
 # dist_mtx = np.load(r'E:\Xie group\DataAnalysis\clustering labels\data9_22_21_funked_covid_variants_subed.npy')
 HCA = AgglomerativeClustering(n_clusters=None, affinity='precomputed', linkage='complete', distance_threshold=0.125)
-clustering_predictions = HCA.predict(dist_mtx)
+clustering_predictions = HCA.fit_predict(dist_mtx)
 
 ##---------------------------------------------------followed by analysis----------------------------------------------------##
 ## the following is an example of showing the spectra belonging to every cluster in order to check clustering result. Watch your

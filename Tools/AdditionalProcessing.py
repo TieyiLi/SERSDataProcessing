@@ -53,6 +53,32 @@ class AdditionalProcessing(Utils):
         print('%d/%d interest instances' % (total_interest_num, L))
 
         return new_label
+    
+    
+    def split_mixed_maps(self, relabeled_group, ori_map_index):
+        """
+        This function splits the maps which contains both negative and positive spectra
+        after relabeling. This function only applied to binary classification.
+      
+        Parameters
+        ----------
+        relabeled_group: relabeled group (data dictionary 'group' component) with the shape of (number of spectra, )
+        ori_map_index: original map index (data dictionary 'map_index' component)
+        
+        Returns
+        -------
+        New map index list
+        """
+        new_map_index = ori_map_index.copy()
+        L = len(relabeled_group)
+        for type in set(ori_map_index):
+            idx = [i for i in range(L) if ori_map_index[i] == type]
+            sub_group = relabeled_group[idx]
+            if set(sub_group) == {0, 1}:
+                idx_pos = [idx[j] for j in range(len(idx)) if sub_group[j] == 1]
+                for p in idx_pos:
+                    new_map_index[p] = ori_map_index[p] + '_p'
+        return new_map_index
 
 
     def relabel_by_ratio(self, cluster_pred, ori_label, percentage=0.5):

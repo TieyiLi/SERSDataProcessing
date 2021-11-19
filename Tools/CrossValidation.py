@@ -200,7 +200,7 @@ def predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr):
     else:
         return 0
 
-def leave_one_sample_out_CV(estimator, X, y, label, map_index, voting_thr=0.5):
+def leave_one_sample_out_CV(estimator, X, y, label, map_index, ori_group, voting_thr=0.5):
     """
     Levae-one-sample-out cross validation.
 
@@ -230,10 +230,15 @@ def leave_one_sample_out_CV(estimator, X, y, label, map_index, voting_thr=0.5):
         pred = estimator.predict(X[test_idx])
         map_index_each_sample = [map_index[i] for i in test_idx]
         
+        
         prediction_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr)
-        true_sample_label[step] = y[test_idx[0]]
+        true_of_sample = original_group[test_idx]
+        if len(set(true_of_sample)) != 1:
+            raise ValueError('True labels in test map are inconsistent!')
+        
+        true_sample_label[step] = true_of_sample[0]
         pred_sample_label[step] = prediction_of_sample
         step += 1
-        print(str(prediction_of_sample) + '(' + str(y[test_idx[0]]) + ')', end='\n\n')
+        print(str(prediction_of_sample) + '(' + str(true_of_sample[0]) + ')', end='\n\n')
 
     print(accuracy_score(true_sample_label, pred_sample_label))

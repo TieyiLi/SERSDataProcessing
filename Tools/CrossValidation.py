@@ -152,6 +152,7 @@ def leave_maps_out_CV(estimator, X, y, map_index, splitter=K_fold_maps_split, **
     else:
         raise ValueError('Inconsistent data shape!')
 
+        
 def leave_one_sample_out(label):
     """leave-one-sample-out cross valiation splitter"""
     label_set = set(label)
@@ -161,7 +162,8 @@ def leave_one_sample_out(label):
         training_idx = np.setdiff1d(np.arange(L), test_idx)
         yield training_idx, test_idx, label_type
 
-def predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr):
+        
+def predict_sample_by_counting_maps(pred, map_index_each_sample):
     """
     This function summarizes the predictions of spectra then maps and generates the 
     prediction for each sample. The determinations of maps and samples are both based
@@ -194,12 +196,10 @@ def predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr):
     map_counting = np.array(map_counting)
     positive_predictions = np.sum(map_counting == 1)
     print(str(positive_predictions) + '/' + str(l), end='  ')
+    
+    return positive_predictions / l
 
-    if positive_predictions / l >= voting_thr:
-        return 1
-    else:
-        return 0
-
+    
 def leave_one_sample_out_CV(estimator, X, y, label, map_index, ori_group, voting_thr=0.5):
     """
     Levae-one-sample-out cross validation.
@@ -211,6 +211,7 @@ def leave_one_sample_out_CV(estimator, X, y, label, map_index, ori_group, voting
     y: group truth or training label
     label: label of data dictionary
     map_index: map_index of data dictionary
+    ori_group: original data_dict['group'] before relabeling
     voting_thr: minimal fraction of diseased required to predict a sample as 
                 diseased, default 50%
 
@@ -218,11 +219,11 @@ def leave_one_sample_out_CV(estimator, X, y, label, map_index, ori_group, voting
     -------
     None
     """
-    
-    step = 0
+    r = 0
     sample_number = len(set(label))
     true_sample_label = np.empty(shape=(sample_number, ))
     pred_sample_label = np.empty(shape=(sample_number, ))
+    scores = np.empty(shape=(sample_number, ))
 
     for training_idx, test_idx, label_id in leave_one_sample_out(label):
         print('Sample %d validation: ' % label_id, end='')
@@ -230,15 +231,121 @@ def leave_one_sample_out_CV(estimator, X, y, label, map_index, ori_group, voting
         pred = estimator.predict(X[test_idx])
         map_index_each_sample = [map_index[i] for i in test_idx]
         
-        
-        prediction_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr)
-        true_of_sample = original_group[test_idx]
+        score_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr)
+        prediction_of_sample = threshold_prediction(score_of_sample, voting_thr)
+        true_of_sample = ori_group[test_idx]
         if len(set(true_of_sample)) != 1:
             raise ValueError('True labels in test map are inconsistent!')
         
-        true_sample_label[step] = true_of_sample[0]
-        pred_sample_label[step] = prediction_of_sample
-        step += 1
+        true_sample_label[r] = true_of_sample[0]
+        pred_sample_label[r] = prediction_of_sample
+        scores[r] = score_of_sample
         print(str(prediction_of_sample) + '(' + str(true_of_sample[0]) + ')', end='\n\n')
+        r += 1
 
     print(accuracy_score(true_sample_label, pred_sample_label))
+    return pred_sample_label, true_sample_label, socre_of_sample
+
+
+def threshold_prediction(score, thr):
+    if score >= thr:
+        return 1
+    else:
+        return 0
+    
+    
+def KFold_leave_pair_of_samples_out(label, group_dict):
+    '''
+    This function leaves a pair of negative and positive samples out as
+    the validation set while the rest is for training.
+    :param label: labels for all spectra given by data_dict['label']
+    :param group_dict: group_dict given by data_dict['group_dict']
+    :return: yield training and validation sets and the corresponding IDs
+    '''
+    L = len(label)
+    neg_group = group_dict[0]
+    pos_group = group_dict[1]
+    np.random.shuffle(neg_group)
+    np.random.shuffle(pos_group)
+    # neg_group = [10, 5, 8, 3, 2, 9, 7, 4, 6, 1]
+    # pos_group = [14, 17, 16, 15, 11, 18, 20, 12, 19, 13]
+    for i in range(len(neg_group)):
+        neg_test_idx = np.where(label==neg_group[i])[0]
+        pos_test_idx = np.where(label==pos_group[i])[0]
+        training_idx = np.setdiff1d(np.setdiff1d(np.arange(L), neg_test_idx), pos_test_idx)
+        yield training_idx, [neg_test_idx, pos_test_idx], [neg_group[i], pos_group[i]]
+
+
+def predict_map_by_counting_spec(pred, map_index):
+    '''
+    This function gives predictions for every map based on counting the spectra included, threshold of 0.5
+    is used by default.
+    :param pred: predictions for every spectrum given by classifier
+    :param map_index: corresponding map_index for the above predictions
+    :return: predictions for the maps belonging to the given sample and total number of maps
+    '''
+    map_prediction = []
+    map_index_set = set(map_index)
+    L = len(pred)
+    l = len(map_index_set)
+    for map in map_index_set:
+        idx = [i for i in range(L) if map_index[i] == map]
+        map_pred = pred[idx]
+        most_common_ele = np.argmax(np.bincount(map_pred))
+        map_prediction.append(most_common_ele)
+    return np.array(map_prediction), l
+
+
+def leave_pair_of_samples_out_CV(estimator, X, y, label, group_dict, map_index=None, thr=.5, relabel=False):
+    '''
+    Performing leave pair of samples out cross validation.
+    :param estimator: classifier
+    :param X: data matrix
+    :param y: ground truth, before relabeling
+    :param label: sample labels given by data_dict['label']
+    :param group_dict: group_dict given by data_dict['group_dict']
+    :param map_index: None for one-spectrum-per-map; data_dict['map_index'] for multiple-spectra-per-map
+    :param thr: voting threshold
+    :return: predictions for every sample, ground truth for every sample, scores for every sample
+    '''
+    sample_number = len(set(label))
+    true_sample_label = np.empty(shape=(sample_number, ))
+    pred_sample_label = np.empty(shape=(sample_number, ))
+    score = np.empty(shape=(sample_number, ))
+
+    for training_idx, test_idx, test_label_id in KFold_leave_pair_of_samples_out(label, group_dict):
+
+        estimator.fit(X[training_idx], y[training_idx])
+        # Spectra predictions for the two validation samples
+        neg_pred, pos_pred = estimator.predict(X[test_idx[0]]), estimator.predict(X[test_idx[1]])
+
+        # Determine the sample type based on the counting
+        if map_index is None:
+            neg_tot_particle_num, pos_tot_particle_num = len(neg_pred), len(pos_pred)
+            neg_pos_num, pos_pos_num = sum(neg_pred == 1), sum(pos_pred == 1)
+            score_neg, score_pos = neg_pos_num / neg_tot_particle_num, pos_pos_num / pos_tot_particle_num
+        else:
+            neg_map_index = [map_index[s] for s in test_idx[0]]
+            pos_map_index = [map_index[t] for t in test_idx[1]]
+            neg_map_pred, neg_map_num = predict_map_by_counting_spec(neg_pred, neg_map_index)
+            pos_map_pred, pos_map_num = predict_map_by_counting_spec(pos_pred, pos_map_index)
+            neg_pos_num, pos_pos_num = sum(neg_map_pred == 1), sum(pos_map_pred == 1)
+            neg_tot_particle_num, pos_tot_particle_num = neg_map_num, pos_map_num
+            score_neg, score_pos = neg_pos_num / neg_map_num, pos_pos_num / pos_map_num
+
+        neg_pred_sample, pos_pred_sample = threshold_prediction(score_neg, thr), threshold_prediction(score_pos, thr)
+
+        # Complete predictions for every sample
+        true_sample_label[test_label_id[1] - 1], true_sample_label[test_label_id[0] - 1] = 1, 0
+        pred_sample_label[test_label_id[1] - 1], pred_sample_label[test_label_id[0] - 1] = \
+            pos_pred_sample, neg_pred_sample
+        score[test_label_id[1] - 1], score[test_label_id[0] - 1] = score_pos, score_neg
+
+        # Inspecting results
+        print('Sample %d val: %d/%d=' % (test_label_id[0], neg_pos_num, neg_tot_particle_num), end='')
+        print('%.5f---->%d(0)' % (score_neg, neg_pred_sample))
+        print('Sample %d val: %d/%d=' % (test_label_id[1], pos_pos_num, pos_tot_particle_num), end='')
+        print('%.5f---->%d(1)' % (score_pos, pos_pred_sample), end='\n\n')
+
+    print(accuracy_score(true_sample_label, pred_sample_label))
+    return  pred_sample_label, true_sample_label, score

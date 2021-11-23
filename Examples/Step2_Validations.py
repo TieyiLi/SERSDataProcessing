@@ -46,4 +46,13 @@ regular_CV(clf_svc, X, y, splitter, output='accuracy')
 
 # X = data_matrix
 # y = group
-# leave_one_sample_out_CV(clf_svc, X, y, label, map_index, 0.5)
+# pred, true, score = leave_one_sample_out_CV(clf_svc, X, y, label, map_index, 0.5)
+# addprep.manual_roc(true, score)
+
+##-------------------------------------------------LPSsO cross validation-----------------------------------------------------##
+## Only use leave-pair-of-samples-out cross validation for patient/healthy and each group contains more than one samples
+
+# X = data_matrix
+# y = group
+# pred, true, score = leave_pair_of_samples_out_CV(clf_svc, X, y, label, group_dict, map_index, 0.5)
+# addprep.manual_roc(true, score)

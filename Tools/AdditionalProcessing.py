@@ -206,3 +206,41 @@ class AdditionalProcessing(Utils):
                 print('    Prediction of %d: %d' % (int(n), len_n), end='')
                 print('(%.3f)' % (len_n / len(content_summary)))
             s += 1
+            
+  
+  def manual_roc(y_true, y_score):
+
+    fpr, tpr, thr = roc_curve(y_true, y_score, pos_label=1)
+    print(tpr)
+    print(thr)
+
+    fig, ax = plt.subplots(1, 1, figsize=(7.5, 7))
+    ax.plot(fpr, tpr, 'deepskyblue', lw=2.0)
+    ax.set_xlabel('1 - Specificity', fontsize=13, fontstyle='italic')
+    ax.set_xticks(np.linspace(0, 1, 11))
+    ax.set_ylabel('Sensitivity', c='deepskyblue', fontsize=13, fontstyle='italic')
+    ax.set_yticks(np.linspace(0, 1, 11))
+    ax.plot([0, 1], [0, 1], 'deepskyblue', linestyle='-.', lw=1.0)
+
+    ax2 = ax.twinx()
+    ax2.plot(fpr, thr, 'orange', marker='o', lw=1.6, markersize=3)
+    ax2.set_ylabel('Threshold', c='orange', fontsize=13, fontstyle='italic')
+
+    ax.set_facecolor('#EAEAF2')
+    ax_yticks = ax.get_yticks()
+    ax.grid(True, color='white')
+    ax2.set_yticks(np.linspace(np.min(thr), np.max(thr), len(ax_yticks)))
+
+    ax.spines['bottom'].set_color('white')
+    ax2.spines['bottom'].set_color('white')
+    ax.spines['top'].set_color('white')
+    ax2.spines['top'].set_color('white')
+    ax.spines['left'].set_color('white')
+    ax2.spines['left'].set_color('white')
+    ax.spines['right'].set_color('white')
+    ax2.spines['right'].set_color('white')
+
+    ax.tick_params(axis='y', colors='deepskyblue')
+    ax2.tick_params(axis='y', colors='orange')
+
+    plt.show()

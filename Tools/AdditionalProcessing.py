@@ -8,6 +8,8 @@ test results and so on.
 
 import numpy as np
 from Tools.Utils import Utils
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve
 
 
 class AdditionalProcessing(Utils):

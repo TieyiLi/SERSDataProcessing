@@ -210,7 +210,7 @@ class AdditionalProcessing(Utils):
             s += 1
             
   
-  def manual_roc(y_true, y_score):
+  def manual_roc(self, y_true, y_score):
 
     fpr, tpr, thr = roc_curve(y_true, y_score, pos_label=1)
     print(tpr)

@@ -14,7 +14,7 @@ addprep = AdditionalProcessing()
 ##------------------------------------------------input data dictionary------------------------------------------------------##
 
 data_dict_path = r'/Users/tieyili/Desktop/data11_10_21_SpikedSalivaBlindTest_2ndRoundTest_Sub.npy'
-data_dict = addprep.input_data(data_dict_path, out_put='dict')
+data_dict = addprep.input_data(data_dict_path, output='dict')
 data_matrix = data_dict['data_matrix']
 label = data_dict['label']
 group = data_dict['group']

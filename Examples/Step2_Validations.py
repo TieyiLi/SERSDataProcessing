@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Tools.Utils import Utils
 from Tools.AdditionalProcessing import AdditionalProcessing
-from Tools.CrossValidation import regular_CV, leave_maps_out_CV, accuracy_by_maps, leave_one_sample_out_CV
+from Tools.CrossValidation import regular_CV, leave_maps_out_CV, accuracy_by_maps, leave_one_sample_out_CV, leave_pair_of_samples_out_CV
 from sklearn.svm import SVC
 from sklearn.model_selection import StratifiedShuffleSplit
 
@@ -14,7 +14,13 @@ addprep = AdditionalProcessing()
 ##------------------------------------------------input data dictionary------------------------------------------------------##
 
 data_dict_path = r'/Users/tieyili/Desktop/data11_10_21_SpikedSalivaBlindTest_2ndRoundTest_Sub.npy'
-data_matrix, label, group, sample_name, raman_shift, map_index = addprep.input_data(data_dict_path)
+data_dict = addprep.input_data(data_dict_path, out_put='dict')
+data_matrix = data_dict['data_matrix']
+label = data_dict['label']
+group = data_dict['group']
+map_index = data_dict['group']
+raman_shift = data_dict['raman_shift']
+group_dict = data_dict['group_dict']
 
 ##---------------------------------------------------preprocessing-----------------------------------------------------------##
 

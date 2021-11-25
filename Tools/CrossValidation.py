@@ -154,7 +154,7 @@ def leave_maps_out_CV(estimator, X, y, map_index, splitter=K_fold_maps_split, **
 
         
 def leave_one_sample_out(label):
-    """leave-one-sample-out cross valiation splitter"""
+    """leave-one-sample-out cross validation splitter"""
     label_set = set(label)
     L = len(label)
     for label_type in label_set:
@@ -200,7 +200,7 @@ def predict_sample_by_counting_maps(pred, map_index_each_sample):
     return positive_predictions / l
 
     
-def leave_one_sample_out_CV(estimator, X, y, label, map_index, ori_group, voting_thr=0.5):
+def leave_one_sample_out_CV(estimator, X, y, label, group_dict, map_index, voting_thr=0.5):
     """
     Levae-one-sample-out cross validation.
 
@@ -221,30 +221,28 @@ def leave_one_sample_out_CV(estimator, X, y, label, map_index, ori_group, voting
     """
     r = 0
     sample_number = len(set(label))
-    true_sample_label = np.empty(shape=(sample_number, ))
-    pred_sample_label = np.empty(shape=(sample_number, ))
-    scores = np.empty(shape=(sample_number, ))
+    true_sample_label = np.empty(shape=(sample_number,))
+    pred_sample_label = np.empty(shape=(sample_number,))
+    scores = np.empty(shape=(sample_number,))
 
     for training_idx, test_idx, label_id in leave_one_sample_out(label):
         print('Sample %d validation: ' % label_id, end='')
         estimator.fit(X[training_idx], y[training_idx])
         pred = estimator.predict(X[test_idx])
         map_index_each_sample = [map_index[i] for i in test_idx]
-        
-        score_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample, voting_thr)
+
+        score_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample)
         prediction_of_sample = threshold_prediction(score_of_sample, voting_thr)
-        true_of_sample = ori_group[test_idx]
-        if len(set(true_of_sample)) != 1:
-            raise ValueError('True labels in test map are inconsistent!')
-        
-        true_sample_label[r] = true_of_sample[0]
+        true_of_sample = [key for key in group_dict.keys() if label_id in group_dict[key]][0]
+
+        true_sample_label[r] = true_of_sample
         pred_sample_label[r] = prediction_of_sample
         scores[r] = score_of_sample
-        print(str(prediction_of_sample) + '(' + str(true_of_sample[0]) + ')', end='\n\n')
+        print(str(prediction_of_sample) + '(' + str(true_of_sample) + ')', end='\n\n')
         r += 1
 
     print(accuracy_score(true_sample_label, pred_sample_label))
-    return pred_sample_label, true_sample_label, socre_of_sample
+    return pred_sample_label, true_sample_label, scores
 
 
 def threshold_prediction(score, thr):
@@ -296,7 +294,7 @@ def predict_map_by_counting_spec(pred, map_index):
     return np.array(map_prediction), l
 
 
-def leave_pair_of_samples_out_CV(estimator, X, y, label, group_dict, map_index=None, thr=.5, relabel=False):
+def leave_pair_of_samples_out_CV(estimator, X, y, label, group_dict, map_index=None, thr=.5):
     '''
     Performing leave pair of samples out cross validation.
     :param estimator: classifier

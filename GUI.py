@@ -68,12 +68,13 @@ class SelectSpecGUI:
 
         self.save_checkbox_var = BooleanVar()
         save_check_box = Checkbutton(self.frm, text='Save qualified spec', variable=self.save_checkbox_var,
-                                        font=('Arial', 12, 'bold'))
+                                     command=self.activateEntry, font=('Arial', 12, 'bold'))
         save_check_box.grid(column=1, sticky=W)
+
 
         input_savepath_label = Label(self.frm, text='Input saving path:', font=('Arial', 12, 'bold'))
         input_savepath_label.grid(column=0, sticky=E)
-        self.input_savepath_entry = Entry(self.frm, width=40)
+        self.input_savepath_entry = Entry(self.frm, state=DISABLED, width=40)
         self.input_savepath_entry.grid(row=2, column=1, sticky=W)
         self.input_savepath_entry.grid_propagate(False)
 
@@ -90,6 +91,12 @@ class SelectSpecGUI:
         button_cancel = Button(self.frm, text='CANCEL', height=3, width=8, command=self.terminate)
         button_cancel.configure(font=('Arial', 12))
         button_cancel.grid(row=4, column=1, pady=30)
+
+    def activateEntry(self):
+        if self.save_checkbox_var.get():
+            self.input_savepath_entry.config(state=NORMAL)
+        else:
+            self.input_savepath_entry.config(state=DISABLED)
 
     def execute(self):
         data_from = self.input_specpath_entry.get()
@@ -136,13 +143,13 @@ class ReadDataDictGUI:
 
         input_dir_label = Label(self.frm, text='Input saving path:', font=('Arial', 12, 'bold'))
         input_dir_label.grid(column=0, sticky=E)
-        self.input_dir_entry = Entry(self.frm, width=40)
+        self.input_dir_entry = Entry(self.frm, state=DISABLED, width=40)
         self.input_dir_entry.grid(row=4, column=1, sticky=W)
         self.input_dir_entry.grid_propagate(False)
 
         input_filename_label = Label(self.frm, text='Input file name:', font=('Arial', 12, 'bold'))
         input_filename_label.grid(column=0, sticky=E)
-        self.input_filename_entry = Entry(self.frm, width=40)
+        self.input_filename_entry = Entry(self.frm, state=DISABLED, width=40)
         self.input_filename_entry.grid(row=5, column=1, sticky=W)
         self.input_filename_entry.grid_propagate(False)
 
@@ -164,7 +171,8 @@ class ReadDataDictGUI:
         norm_checkbox.grid(row=7, column=1, sticky=W)
 
         self.save_var = BooleanVar()
-        norm_checkbox = Checkbutton(self.frm, text='Save Dict', variable=self.save_var, font=('Arial', 12, 'bold'))
+        norm_checkbox = Checkbutton(self.frm, text='Save Dict', variable=self.save_var, command=self.activateEntry,
+                                    font=('Arial', 12, 'bold'))
         norm_checkbox.grid(sticky=W)
 
         button_run = Button(self.frm, text='RUN', height=1, width=12, command=self.execute)
@@ -174,6 +182,14 @@ class ReadDataDictGUI:
         button_cancel = Button(self.frm, text='CANCEL', height=1, width=12, command=self.terminate)
         button_cancel.configure(font=('Arial', 12))
         button_cancel.grid(row=9, column=1)
+
+    def activateEntry(self):
+        if self.save_var.get():
+            self.input_dir_entry.config(state=NORMAL)
+            self.input_filename_entry.config(state=NORMAL)
+        else:
+            self.input_dir_entry.config(state=DISABLED)
+            self.input_filename_entry.config(state=DISABLED)
 
     def execute(self):
         data_path = self.input_specpath_entry.get()
@@ -304,18 +320,18 @@ class ClusterGUI:
 
         self.save_DM_checkbox_var = BooleanVar()
         save_DM_checkbox = Checkbutton(self.frm, text='Save DM', variable=self.save_DM_checkbox_var,
-                                        font=('Arial', 12, 'bold'))
+                                       command=self.activateEntry_top, font=('Arial', 12, 'bold'))
         save_DM_checkbox.grid(row=1, column=1, sticky=W)
 
         input_saveDMdir_label = Label(self.frm, text='Input DM saving path:', font=('Arial', 12, 'bold'))
         input_saveDMdir_label.grid(column=0, sticky=E, padx=30)
-        self.input_saveDMdir_entry = Entry(self.frm, width=40)
+        self.input_saveDMdir_entry = Entry(self.frm, state=DISABLED, width=40)
         self.input_saveDMdir_entry.grid(row=2, column=1, sticky=W)
         self.input_saveDMdir_entry.grid_propagate(False)
 
         input_DMname_label = Label(self.frm, text='Input DM file name:', font=('Arial', 12, 'bold'))
         input_DMname_label.grid(column=0, sticky=E, padx=30)
-        self.input_DMname_entry = Entry(self.frm, width=40)
+        self.input_DMname_entry = Entry(self.frm, state=DISABLED, width=40)
         self.input_DMname_entry.grid(row=3, column=1, sticky=W)
         self.input_DMname_entry.grid_propagate(False)
 
@@ -336,18 +352,18 @@ class ClusterGUI:
 
         self.save_pred_checkbox_var = BooleanVar()
         relabel_check_box = Checkbutton(self.frm, text='Save pred', variable=self.save_pred_checkbox_var,
-                                        font=('Arial', 12, 'bold'))
+                                        command=self.activateEntry_bottom, font=('Arial', 12, 'bold'))
         relabel_check_box.grid(row=6, column=1, sticky=W)
 
         input_savepred_label = Label(self.frm, text='Input pred saving path:', font=('Arial', 12, 'bold'))
         input_savepred_label.grid(column=0, sticky=E, padx=30)
-        self.input_savepred_entry = Entry(self.frm, width=40)
+        self.input_savepred_entry = Entry(self.frm, state=DISABLED, width=40)
         self.input_savepred_entry.grid(row=7, column=1, sticky=W)
         self.input_savepred_entry.grid_propagate(False)
 
         input_predname_label = Label(self.frm, text='Input pred file name:', font=('Arial', 12, 'bold'))
         input_predname_label.grid(column=0, sticky=E, padx=30)
-        self.input_predname_entry = Entry(self.frm, width=40)
+        self.input_predname_entry = Entry(self.frm, state=DISABLED, width=40)
         self.input_predname_entry.grid(row=8, column=1, sticky=W)
         self.input_predname_entry.grid_propagate(False)
 
@@ -389,6 +405,22 @@ class ClusterGUI:
             PATH = os.path.join(save_pred_dir, pred_filename)
             np.save(PATH, pred)
         print('Finished predicting!')
+
+    def activateEntry_top(self):
+        if self.save_DM_checkbox_var.get():
+            self.input_saveDMdir_entry.config(state=NORMAL)
+            self.input_DMname_entry.config(state=NORMAL)
+        else:
+            self.input_saveDMdir_entry.config(state=DISABLED)
+            self.input_DMname_entry.config(state=DISABLED)
+
+    def activateEntry_bottom(self):
+        if self.save_pred_checkbox_var.get():
+            self.input_savepred_entry.config(state=NORMAL)
+            self.input_predname_entry.config(state=NORMAL)
+        else:
+            self.input_savepred_entry.config(state=DISABLED)
+            self.input_predname_entry.config(state=DISABLED)
 
     def terminate(self):
         print('Process terminated!')

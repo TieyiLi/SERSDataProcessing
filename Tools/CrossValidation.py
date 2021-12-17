@@ -231,7 +231,12 @@ def leave_one_sample_out_CV(estimator, X, y, label, group_dict, map_index, votin
         pred = estimator.predict(X[test_idx])
         map_index_each_sample = [map_index[i] for i in test_idx]
 
-        score_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample)
+        
+        if map_index is None:
+            score_of_sample = np.sum(pred == 1) / len(pred)
+        else:
+            score_of_sample = predict_sample_by_counting_maps(pred, map_index_each_sample)
+            
         prediction_of_sample = threshold_prediction(score_of_sample, voting_thr)
         true_of_sample = [key for key in group_dict.keys() if label_id in group_dict[key]][0]
 

@@ -1,12 +1,86 @@
 from pywinauto import application
 from time import sleep
 import pyautogui as agent
+from scipy.sparse import spdiags, linalg, csc_matrix
+from scipy.fft import fft
+from renishawWiRE import WDFReader
+import numpy as np
 
-def calculate_sharpness(im):
-    im_array = np.asarray(im, dtype=np.int32)
-    gy, gx = np.gradient(im_array)
-    sharpness = np.average(np.sqrt(gx**2 + gy**2))
-    return sharpness
+def auto_focus():
+    z_series = np.arange(-15, 15, 0.5)
+    scores = []
+    for z in z_series:
+        image = agent.screenshot().convert('L')
+        im_array = np.asarray(image, dtype=np.int32)
+        gy, gx = np.gradient(im_array)
+        sharpness = np.mean(np.sqrt(gx**2 + gy**2))
+        scores.append(sharpness)
+    best_z = z_series[np.argmax(scores)]
+    return best_z
+
+
+def gen_coarse_coordinates(upper_left_coordinates, lower_right_coordinates):
+    map_length = 305.0
+    hori_length = lower_right_coordinates[0] - upper_left_coordinates[0]
+    vert_length = lower_right_coordinates[1] - upper_left_coordinates[1]
+    hori_No = hori_length // map_length - 1
+    vert_No = vert_length // map_length - 1
+
+    ref_coordinates = []
+    h_idx, v_idx = 0, 0
+    while v_idx <= vert_No:
+        if h_idx == 0:
+            while h_idx <= hori_No:
+                ref_x = upper_left_coordinates[0] + h_idx * map_length
+                ref_y = upper_left_coordinates[1] + v_idx * map_length
+                ref_coordinates.append([ref_x, ref_y])
+                h_idx += 1
+                if h_idx == hori_No + 1:
+                    v_idx += 1
+        elif h_idx == hori_No + 1:
+            while h_idx >= 1:
+                h_idx -= 1
+                ref_x = upper_left_coordinates[0] + h_idx * map_length
+                ref_y = upper_left_coordinates[1] + v_idx * map_length
+                ref_coordinates.append([ref_x, ref_y])
+                if h_idx == 0:
+                    v_idx += 1
+        else:
+            raise ValueError('Coordinates wrong!')
+    return ref_coordinates
+
+def baseline_sub(self, x, lam=1e4, p=0.005, niter=10):
+    '''lam usually from 100-10^9, p from 0.000001 to 0.1'''
+    '''used 300, 0.01'''
+    L = len(x)
+    D = csc_matrix(np.diff(np.eye(L), 2))
+    w = np.ones(L)
+    baseline = 0
+    for i in range(niter):
+        W = spdiags(w, 0, L, L)
+        Z = W + lam * D.dot(D.transpose())
+        baseline = linalg.spsolve(Z, w * x)
+        w = p * (x > baseline) + (1 - p) * (x < baseline)
+    return x - baseline
+
+def metrics_for_coarse_map(coarse_map_path):
+    reader = WDFReader(coarse_map_path)
+    wavenumber, collections = reader.xdata, reader.spectra
+    x_pos, y_pos = reader.xpos, reader.ypos
+    progress = 0
+    out = []
+    for i in range(collections.shape[0]):
+        for j in range(collections.shape[1]):
+            spectrum = collections[i, j]
+            base_sub = baseline_sub(spectrum)
+            norm_spectrum = prep.norm_signal(base_sub)
+            specf = abs(np.real(fft(norm_spectrum)[1:50]))
+            specf_r1 = specf[15:31]
+            score = np.mean(specf_r1)
+            if score >= 4.9:
+                out.append([x_pos[progress], y_pos[progress]])
+            progress += 1
+    return out
 
 ##while True:
 ##    x, y = agent.position()

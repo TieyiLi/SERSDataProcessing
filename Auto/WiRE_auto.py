@@ -2,6 +2,7 @@ from pywinauto import application
 from time import sleep
 import pyautogui as agent
 from scipy.sparse import spdiags, linalg, csc_matrix
+from scipy.signal import savgol_filter
 from scipy.fft import fft
 from renishawWiRE import WDFReader
 import numpy as np

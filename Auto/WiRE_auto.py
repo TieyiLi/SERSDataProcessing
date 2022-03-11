@@ -49,6 +49,7 @@ def gen_coarse_coordinates(upper_left_coordinates, lower_right_coordinates):
             raise ValueError('Coordinates wrong!')
     return ref_coordinates
 
+
 def baseline_sub(self, x, lam=1e4, p=0.005, niter=10):
     '''lam usually from 100-10^9, p from 0.000001 to 0.1'''
     '''used 300, 0.01'''
@@ -63,6 +64,7 @@ def baseline_sub(self, x, lam=1e4, p=0.005, niter=10):
         w = p * (x > baseline) + (1 - p) * (x < baseline)
     return x - baseline
 
+
 def metrics_for_coarse_map(coarse_map_path):
     reader = WDFReader(coarse_map_path)
     wavenumber, collections = reader.xdata, reader.spectra
@@ -73,14 +75,17 @@ def metrics_for_coarse_map(coarse_map_path):
         for j in range(collections.shape[1]):
             spectrum = collections[i, j]
             base_sub = baseline_sub(spectrum)
-            norm_spectrum = prep.norm_signal(base_sub)
-            specf = abs(np.real(fft(norm_spectrum)[1:50]))
-            specf_r1 = specf[15:31]
-            score = np.mean(specf_r1)
+            norm_spectrum = (spectrum - min(spectrum)) / (max(spectrum) - min(spectrum))
+            score = np.mean(np.abs(np.real(fft(norm_spectrum)[16:32])))
             if score >= 4.9:
-                out.append([x_pos[progress], y_pos[progress]])
+                smooth = savgol_filter(base_sub, 7, 1)
+                N = np.mean(abs(smooth - base_sub))
+                snr = max(smooth) / N
+                if snr >= 8.0:
+                    out.append([x_pos[progress], y_pos[progress]])
             progress += 1
     return out
+
 
 ##while True:
 ##    x, y = agent.position()

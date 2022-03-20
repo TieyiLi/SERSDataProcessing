@@ -34,13 +34,16 @@ Sample Review:
     Light turn on/off: 75, 727
 Video:
     upper left: 67, 158
-    lower right: 815, 633
+    lower right: 748, 475
 z_coordinate: 365, 118
 x_coordinate: 189, 118
 y_coordinate: 273, 118
-GO to: 438, 118
+Go to: 438, 118
+WiRE software: 176, 1057
+Confirm administrator: 413, 237
+Start 1 error close: 1169, 642
+close WiRE: 1887, 12
 '''
-
 def check_button_positions():
     sleep(5)
     
@@ -266,13 +269,17 @@ def open_coarse_map_template():
 
 
 def restart_WiRE():
-    '''Open templates'''
-    '''Check camera and light status'''
-    '''Active fine map'''
-    '''Check if mapping can start without tunning laser or grating, if so the sleep time must be changed'''
-    '''Rest for 5 mins'''
-    return 0
-
+    agent.click(1887, 12)
+    sleep(300)
+    agent.click(176, 1057)
+    sleep(20)
+    agent.click(1169, 642)
+    sleep(180)
+    agent.moveTo(57, 683)
+    agent.dragTo(52, 678)
+    open_coarse_map_template()
+    open_fine_map_template()
+    
 
 def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
     
@@ -300,6 +307,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
             '''Open fine map template'''
             open_fine_map_template()
         else:
+            '''Move to coarse map upper left position'''
             agent.click(189, 118)
             agent.hotkey('ctrl', 'a')
             agent.press('backspace')
@@ -313,7 +321,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
             auto_focus(z_series)
             sleep(1.3)
 
-        '''Go to next coarse map upper left position'''
+        '''Open measurement setup'''
         agent.click(752, 48)
         agent.click(752, 338)
         agent.click(280, 48)
@@ -390,22 +398,18 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
                 
                 '''Restart fine map to release RAM'''
                 fine_map_restart += 1
-                if fine_map_restart == 30:
+                if fine_map_restart == 25:
                     fine_map_restart = 0
                     agent.click(752, 48)
                     agent.click(752, 104)
                     sleep(2.5)
                     open_fine_map_template()
-                    # agent.press('enter')
-                    # sleep(1)
-                    # agent.click(1133, 429)
-                    # sleep(1)
-
+                    
         coarse_map_index += 1
 
         '''Restart WiRE'''
         app_restart += 1
-        if app_restart == 5:
+        if app_restart == 4:
             restart_WiRE()
             app_restart = 0
             fine_map_restart = 0

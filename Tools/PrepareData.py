@@ -101,6 +101,66 @@ class PrepareData(Utils):
             start += 1
         print(dict)
         return dict
+    
+    def compile_wdf_to_datadict(wdf_data_path, label_dict, group_dict, n_each_map, thr):
+        global wavenumber
+        sample_name, map_index, data_matrix, label, group = [], [], [], [], []
+        data_dict = {}
+        pattern = re.compile('_')
+
+        for sample_str in os.listdir(wdf_data_path):
+            sample_dir = os.path.join(wdf_data_path, sample_str)
+            print(sample_str)
+            tot = len(os.listdir(sample_dir))
+            progress, i = 1, 1
+
+            for map_name in os.listdir(sample_dir):
+                if '@' in map_name:
+                    split = pattern.split(map_name)
+                    map_str = split[1]
+                    wdf_path = os.path.join(sample_dir, map_name)
+                    wdf_reading = WDFReader(wdf_path)
+                    wavenumber = wdf_reading.xdata
+                    spectra_collection = wdf_reading.spectra
+
+                    if spectra_collection.ndim == 3:
+                        (hori, vert, dimension) = spectra_collection.shape
+                        spectra_collection = spectra_collection.reshape(hori * vert, dimension)
+
+                        data_scores = []
+                        for spec in spectra_collection:
+                            snr, sig = self.estimate_snr(spec)
+                            if np.sum(spec == 0) <= 5 and self.check_single_spike(sig):
+                                data_scores.append(snr)
+                        if data_scores:
+                            sorted_id = np.argsort(data_scores)
+                            for best_idx in range(n_each_map):
+                                if abs(1 + best_idx) <= len(data_scores) and data_scores[sorted_id[-1 - best_idx]] >= thr:
+                                    sample_name.append(sample_str)
+                                    map_index.append(sample_str + ', ' + map_str)
+                                    label.append(label_dict[sample_str])
+                                    for key in group_dict.keys():
+                                        if label_dict[sample_str] in group_dict[key]:
+                                            group.append(key)
+                                    data_matrix.append(spectra_collection[sorted_id[-1 - best_idx]])
+
+                if progress >= tot / 10 * i:
+                    print('\r' + '#' * i + '.' * (10 - i), end='')
+                    i += 1
+                progress += 1
+            print()
+
+        print(np.array(data_matrix).shape)
+        data_dict['data_matrix'] = np.array(data_matrix)
+        data_dict['sample_name'] = sample_name
+        data_dict['map_index'] = map_index
+        data_dict['label'] = np.array(label)
+        data_dict['group'] = np.array(group)
+        data_dict['raman_shift'] = wavenumber
+        data_dict['label_dict'] = label_dict
+        data_dict['group_dict'] = group_dict
+
+        return data_dict
 
     def read_data(self, data_path, label_dict, group_dict, interp=False):
 

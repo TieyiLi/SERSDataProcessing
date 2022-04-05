@@ -281,7 +281,7 @@ def restart_WiRE():
     open_fine_map_template()
     
 
-def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
+def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
     
     '''Parameter preset'''
     if not os.path.exists(save_folder_path):
@@ -290,36 +290,28 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
     ref_cor = gen_coarse_coordinates(area_cor[0], area_cor[1])
     print(ref_cor)
     z_series = np.arange(z_range[0], z_range[1], 1)
-    coarse_map_index = start_from
+    coarse_map_id = coarse_id_from
     
     '''Monitor software status'''
     fine_map_restart = 0
     app_restart = 0
 
     '''START'''
-    for cor in ref_cor[start_from-1:]:
-
-        '''Go to coarse map region and tune focus'''
-        if coarse_map_index == 1:
-            '''Open coarse map template'''
-            open_coarse_map_template()
-
-            '''Open fine map template'''
-            open_fine_map_template()
-        else:
-            '''Move to coarse map upper left position'''
-            agent.click(189, 118)
-            agent.hotkey('ctrl', 'a')
-            agent.press('backspace')
-            agent.write(str(cor[0]))
-            agent.click(273, 118)
-            agent.hotkey('ctrl', 'a')
-            agent.press('backspace')
-            agent.write(str(cor[1]))
-            agent.click(438, 118)
-            sleep(1.3)
-            auto_focus(z_series)
-            sleep(1.3)
+    for cor in ref_cor:
+        
+        '''Move to coarse map upper left position'''
+        agent.click(189, 118)
+        agent.hotkey('ctrl', 'a')
+        agent.press('backspace')
+        agent.write(str(cor[0]))
+        agent.click(273, 118)
+        agent.hotkey('ctrl', 'a')
+        agent.press('backspace')
+        agent.write(str(cor[1]))
+        agent.click(438, 118)
+        sleep(1.3)
+        auto_focus(z_series)
+        sleep(1.3)
 
         '''Open measurement setup'''
         agent.click(752, 48)
@@ -334,7 +326,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
         agent.hotkey('ctrl', 'a')
         agent.press('backspace')
         coarse_map_path = os.path.join(save_folder_path, 'map_' +
-                                str(coarse_map_index) +
+                                str(coarse_map_id) +
                                  '_' + sample_name_str) + '.wdf'
         agent.write(coarse_map_path)
 
@@ -375,7 +367,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
                 agent.press('backspace')
                 fine_map_path = os.path.join(save_folder_path, 'map_' +
                                                str(fine_map_index) + '@' +
-                                               str(coarse_map_index) +
+                                               str(coarse_map_id) +
                                                '_' + sample_name_str) 
                 agent.write(fine_map_path)
                 
@@ -405,7 +397,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
                     sleep(2.5)
                     open_fine_map_template()
                     
-        coarse_map_index += 1
+        coarse_map_id += 1
 
         '''Restart WiRE'''
         app_restart += 1

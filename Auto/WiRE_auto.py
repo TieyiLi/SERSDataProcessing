@@ -348,7 +348,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, start_from=1):
 
         '''Running coarse map'''
         agent.press('f5')
-        sleep(830)
+        sleep(890)
 
         '''Extract positions for fine map'''
         positions_for_fine_map = extract_fine_map_positions(coarse_map_path)

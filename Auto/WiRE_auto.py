@@ -286,11 +286,10 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
     '''Parameter preset'''
     if not os.path.exists(save_folder_path):
         agent.alert(text='Saving path does not exist', title='File path error')
-        raise ValueError('Folder path does not exist!')
+        raise FileNotFoundError('Folder path does not exist!')
     ref_cor = gen_coarse_coordinates(area_cor[0], area_cor[1])
     print(ref_cor)
     z_series = np.arange(z_range[0], z_range[1], 1)
-    coarse_map_id = coarse_id_from
     
     '''Monitor software status'''
     fine_map_restart = 0
@@ -326,7 +325,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
         agent.hotkey('ctrl', 'a')
         agent.press('backspace')
         coarse_map_path = os.path.join(save_folder_path, 'map_' +
-                                str(coarse_map_id) +
+                                str(coarse_id_from) +
                                  '_' + sample_name_str) + '.wdf'
         agent.write(coarse_map_path)
 
@@ -340,7 +339,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
 
         '''Running coarse map'''
         agent.press('f5')
-        sleep(890)
+        sleep(860)
 
         '''Extract positions for fine map'''
         positions_for_fine_map = extract_fine_map_positions(coarse_map_path)
@@ -367,7 +366,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
                 agent.press('backspace')
                 fine_map_path = os.path.join(save_folder_path, 'map_' +
                                                str(fine_map_index) + '@' +
-                                               str(coarse_map_id) +
+                                               str(coarse_id_from) +
                                                '_' + sample_name_str) 
                 agent.write(fine_map_path)
                 
@@ -397,7 +396,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
                     sleep(2.5)
                     open_fine_map_template()
                     
-        coarse_map_id += 1
+        coarse_id_from += 1
 
         '''Restart WiRE'''
         app_restart += 1
@@ -411,6 +410,5 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
         sleep(3)
         
         
-
 agent.FAILSAFE = True
 agent.confirm('Start running', 'Confirm', buttons=['OK'])

@@ -7,115 +7,130 @@ from scipy.signal import savgol_filter
 from renishawWiRE import WDFReader
 import os
 
-'''
-BUTTON POSITIONS
-Menu bar:
-    Measurement: 280, 48
-        Setup measurement: 280, 153
-    Live video: 379, 48
-        Save image: 379, 352
-    Window: 752, 48
-        close: 752, 104
-        Window 1: 752, 338
-        Window 2: 752, 363
-        Window 3: TBD
-Map measurement setup window:
-    File: 245, 69
-    File name: 313, 152
-    Area setup: 606, 69
-    X first: 570, 181
-    X last: 663, 181
-    Y first: 570, 207
-    Y last: 663, 207
-    OK: 455, 492
-    Cancel: 564, 492
-Sample Review:
-    CCD camera turn on/off: 35, 727
-    Light turn on/off: 75, 727
-Video:
-    upper left: 67, 158
-    lower right: 748, 475
-z_coordinate: 365, 118
-x_coordinate: 189, 118
-y_coordinate: 273, 118
-Go to: 438, 118
-WiRE software: 176, 1057
-Confirm administrator: 413, 237
-Start 1 error close: 1169, 642
-close WiRE: 1887, 12
-'''
+
+'''BUTTON POSITIONS'''
+
+'''Menu bar'''
+measurement = [280, 48]
+setup_measurement = [280, 153]
+open_template = [280, 99]
+live_video = [379, 48]
+set_origin = [367, 119]
+window = [752, 48]
+window_close = [752, 104]
+window_1 = [752, 338]
+window_2 = [752, 363]
+
+'''Template'''
+coarse_template = [938, 643]
+scroll_bar = [1035, 451]
+scroll_bar_down = [1035, 619]
+fine_template = [655, 620]
+template_cancel = [1267, 720]
+
+'''Map measurement setup window'''
+file = [245, 69]
+file_name = [313, 152]
+area_setup = [606, 69]
+x_first = [570, 181]
+x_last = [663, 181]
+y_first = [570, 207]
+y_last = [663, 207]
+ok = [455, 492]
+cancel = [564, 492]
+
+'''Sample review'''
+camera = [85, 857]
+light = [123, 857]
+view_upper_left = [67, 189]
+view_lower_right = [814, 667]
+
+'''Coordinates'''
+x_coor = [189, 147]
+y_coor = [273, 147]
+z_coor = [365, 147]
+go_to = [438, 147]
+
+'''Others'''
+open_WiRE = [176, 1057]
+close_stage_error = [1169, 642]
+task_bar_left = [1592, 1060]
+task_bar_right = [1869, 1060, 2]
+main_window = [1839, 555]
+
+
 def check_button_positions():
     sleep(5)
     
-    agent.click(752, 48)
-    agent.moveTo(752, 338)
+    agent.click(window[0], window[1])
+    agent.moveTo(window_1[0], window_1[1])
     sleep(1)
-    agent.moveTo(752, 363)
+    agent.moveTo(window_2[0], window_2[1])
     sleep(1)
-    agent.click(752, 338)
+    agent.click(window_1[0], window_1[1])
     sleep(4)
     
     agent.click()
-    agent.click(280, 48)
-    agent.moveTo(280, 153)
+    agent.click(measurement[0], measurement[1])
+    agent.moveTo(setup_measurement[0], setup_measurement[1])
     agent.click()
     sleep(2)
-    agent.click(245, 69)
-    agent.moveTo(313, 152)
+    agent.click(file[0], file[1])
+    agent.moveTo(file_name[0], file_name[1])
     sleep(1)
-    agent.click(606, 69)
-    agent.moveTo(570, 181)
+    agent.click(area_setup[0], area_setup[1])
+    agent.moveTo(x_first[0], x_first[1])
     sleep(1)
-    agent.moveTo(663, 181)
+    agent.moveTo(x_last[0], x_last[1])
     sleep(1)
-    agent.moveTo(570, 207)
+    agent.moveTo(y_first[0], y_first[1])
     sleep(1)
-    agent.moveTo(663, 207)
+    agent.moveTo(y_last[0], y_last[1])
     sleep(1)
-    agent.click(564, 492)
+    agent.click(cancel[0], cancel[1])
     sleep(4)
 
-    agent.moveTo(35, 727)
+    agent.moveTo(camera[0], camera[1])
     sleep(1)
-    agent.moveTo(75, 727)
+    agent.moveTo(light[0], light[1])
     sleep(4)
 
-    agent.moveTo(67, 158)
+    agent.moveTo(view_upper_left[0], view_upper_left[1])
     sleep(1)
-    agent.moveTo(815, 633)
+    agent.moveTo(view_lower_right[0], view_lower_right[1])
     sleep(4)
 
-    agent.moveTo(189, 118)
+    agent.moveTo(x_coor[0], x_coor[1])
     sleep(1)
-    agent.moveTo(273, 118)
+    agent.moveTo(y_coor[0], y_coor[1])
     sleep(1)
-    agent.moveTo(365, 118)
+    agent.moveTo(z_coor[0], z_coor[1])
     sleep(1)
-    agent.moveTo(438, 118)
+    agent.moveTo(go_to[0], go_to[1])
     sleep(4)
 
-    agent.click(280, 48)
-    agent.click(280, 99)
+    agent.click(measurement[0], measurement[1])
+    agent.click(open_template[0], open_template[1])
     sleep(1)
-    agent.moveTo(938, 643)
+    agent.moveTo(coarse_template[0], coarse_template[1])
     sleep(1)
-    agent.moveTo(1035, 451)
-    agent.dragTo(1035, 619)
-    agent.moveTo(655, 620)
+    agent.moveTo(scroll_bar[0], scroll_bar[1])
+    agent.dragTo(scroll_bar_down[0], scroll_bar_down[1])
+    agent.moveTo(fine_template[0], fine_template[1])
     sleep(1)
-    agent.click(1267, 720)
+    agent.click(template_cancel[0], template_cancel[1])
 
     
 def auto_focus(z_series):
     scores = []
     for z in z_series:
-        agent.click(365, 118)
+        agent.click(z_coor[0], z_coor[1])
         agent.hotkey('ctrl', 'a')
         agent.press('backspace')
         agent.write(str(z))
-        agent.click(438, 118)
+        agent.click(go_to[0], go_to[1])
         sleep(1.0)
-        image = agent.screenshot(region=(67, 158, 748, 475)).convert('L')
+        image = agent.screenshot(region=(view_upper_left[0], view_upper_left[1], view_lower_right[0], view_lower_right[1])).convert('L')
         im_array = np.asarray(image, dtype=np.int32)
         gy, gx = np.gradient(im_array)
         sharpness = np.mean(np.sqrt(gx**2 + gy**2))
@@ -125,24 +140,24 @@ def auto_focus(z_series):
     fine_z_series = np.arange(best_coarse_z - 2.0, best_coarse_z + 2.0, 0.5)
     fine_scores = []
     for z in fine_z_series:
-        agent.click(365, 118)
+        agent.click(z_coor[0], z_coor[1])
         agent.hotkey('ctrl', 'a')
         agent.press('backspace')
         agent.write(str(z))
-        agent.click(438, 118)
+        agent.click(go_to[0], go_to[1])
         sleep(1.0)
-        image = agent.screenshot(region=(67, 158, 748, 475)).convert('L')
+        image = agent.screenshot(region=(view_upper_left[0], view_upper_left[1], view_lower_right[0], view_lower_right[1])).convert('L')
         im_array = np.asarray(image, dtype=np.int32)
         gy, gx = np.gradient(im_array)
         sharpness = np.mean(np.sqrt(gx**2 + gy**2))
         fine_scores.append(sharpness)
     best_z = fine_z_series[np.argmax(fine_scores)]
     
-    agent.click(365, 118)
+    agent.click(z_coor[0], z_coor[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(str(best_z))
-    agent.click(438, 118)
+    agent.click(go_to[0], go_to[1])
 
 
 def gen_coarse_coordinates(upper_left_coordinates, lower_right_coordinates):
@@ -173,7 +188,7 @@ def gen_coarse_coordinates(upper_left_coordinates, lower_right_coordinates):
                     v_idx += 1
         else:
             raise ValueError('Coordinates wrong!')
-    return np.array(ref_coordinates)
+    return ref_coordinates
 
 
 def baseline_sub(x, lam=1e4, p=0.005, niter=10):
@@ -205,83 +220,120 @@ def extract_fine_map_positions(coarse_map_path):
                 smooth = savgol_filter(base_sub, 7, 1)
                 N = np.mean(abs(smooth - base_sub))
                 snr = max(smooth) / N
-                if snr >= 8.0:
+                if snr >= 4.0:
                     out.append([x_pos[progress], y_pos[progress]])
             progress += 1
     return out
 
 
 def Initialize_area(init):
-    agent.click(606, 69)
-    agent.click(570, 181)
+    agent.click(area_setup[0], area_setup[1])
+    agent.click(x_first[0], x_first[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(init)
-    agent.click(663, 181)
+    agent.click(x_last[0], x_last[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(init)
-    agent.click(570, 207)
+    agent.click(y_first[0], y_first[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(init)
-    agent.click(663, 207)
+    agent.click(y_last[0], y_last[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(init)
 
 
 def Fill_area(x_low, x_high, y_low, y_high):
-    agent.click(663, 181)
+    agent.click(x_first[0], x_first[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(x_high)
-    agent.click(570, 181)
+    agent.click(x_last[0], x_last[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(x_low)
-    agent.click(663, 207)
+    agent.click(y_first[0], y_first[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(y_high)
-    agent.click(570, 207)
+    agent.click(y_last[0], y_last[1])
     agent.hotkey('ctrl', 'a')
     agent.press('backspace')
     agent.write(y_low)
 
 
 def open_fine_map_template():
-    agent.click(280, 48)
-    agent.click(280, 99)
+    agent.click(measurement[0], measurement[1])
+    agent.click(open_template[0], open_template[1])
     sleep(1)
-    agent.moveTo(1035, 451)
-    agent.dragTo(1035, 619)
-    agent.doubleClick(655, 620)
+    agent.moveTo(scroll_bar[0], scroll_bar[1])
+    agent.dragTo(scroll_bar_down[0], scroll_bar_down[1])
+    agent.doubleClick(fine_template[0], fine_template[1])
     sleep(1.5)
 
 
 def open_coarse_map_template():
-    agent.click(280, 48)
-    agent.click(280, 99)
+    agent.click(measurement[0], measurement[1])
+    agent.click(open_template[0], open_template[1])
     sleep(1)
-    agent.doubleClick(938, 643)
+    agent.doubleClick(coarse_template[0], coarse_template[1])
     sleep(1.5)
 
 
-def restart_WiRE():
-    agent.click(1887, 12)
-    sleep(300)
-    agent.click(176, 1057)
+def restart_WiRE(cor):
+
+    agent.click(x_coor[0], x_coor[1])
+    agent.hotkey('ctrl', 'a')
+    agent.press('backspace')
+    agent.write(str(cor[0]))
+    agent.click(y_coor[0], y_coor[1])
+    agent.hotkey('ctrl', 'a')
+    agent.press('backspace')
+    agent.write(str(cor[1]))
+    agent.click(go_to[0], go_to[1])
+    sleep(1.3)
+    
+    os.system('wmic process where name="WiREInterface.exe" delete')
+    os.system('wmic process where name="WiREQueue.exe" delete')
+    sleep(360)
+    agent.click(open_WiRE[0], open_WiRE[1])
     sleep(20)
-    agent.click(1169, 642)
-    sleep(180)
-    agent.moveTo(57, 683)
-    agent.dragTo(52, 678)
+    agent.click(close_stage_error[0], close_stage_error[1])
+    sleep(90)
+
+    '''Set origin'''
+    agent.click(live_video[0], live_video[1])
+    agent.click(set_origin[0], set_origin[1])
+    sleep(0.5)
+
+    agent.click(x_coor[0], x_coor[1])
+    agent.hotkey('ctrl', 'a')
+    agent.press('backspace')
+    agent.write(str(-cor[0]))
+    agent.click(y_coor[0], y_coor[1])
+    agent.hotkey('ctrl', 'a')
+    agent.press('backspace')
+    agent.write(str(-cor[1]))
+    agent.click(go_to[0], go_to[1])
+    sleep(1.3)
+
+    '''Set origin'''
+    agent.click(live_video[0], live_video[1])
+    agent.click(set_origin[0], set_origin[1])
+    sleep(0.5)
+
     open_coarse_map_template()
     open_fine_map_template()
+    agent.moveTo(task_bar_left[0], task_bar_left[1])
+    agent.moveTo(task_bar_right[0], task_bar_right[1], 2)
+    agent.moveTo(main_window[0], main_window[1])
+    sleep(0.5)
     
 
-def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
+def Run(save_folder_path, sample_name_str, area_cor, coarse_id_from=1):
     
     '''Parameter preset'''
     if not os.path.exists(save_folder_path):
@@ -289,7 +341,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
         raise FileNotFoundError('Folder path does not exist!')
     ref_cor = gen_coarse_coordinates(area_cor[0], area_cor[1])
     print(ref_cor)
-    z_series = np.arange(z_range[0], z_range[1], 1)
+    z_series = np.arange(-15, 15, 1)
     
     '''Monitor software status'''
     fine_map_restart = 0
@@ -297,31 +349,34 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
 
     '''START'''
     for cor in ref_cor:
-        
+
         '''Move to coarse map upper left position'''
-        agent.click(189, 118)
-        agent.hotkey('ctrl', 'a')
-        agent.press('backspace')
-        agent.write(str(cor[0]))
-        agent.click(273, 118)
-        agent.hotkey('ctrl', 'a')
-        agent.press('backspace')
-        agent.write(str(cor[1]))
-        agent.click(438, 118)
-        sleep(1.3)
-        auto_focus(z_series)
-        sleep(1.3)
+        if cor == ref_cor[0]:
+            pass
+        else:
+            agent.click(x_coor[0], x_coor[1])
+            agent.hotkey('ctrl', 'a')
+            agent.press('backspace')
+            agent.write(str(cor[0]))
+            agent.click(y_coor[0], y_coor[1])
+            agent.hotkey('ctrl', 'a')
+            agent.press('backspace')
+            agent.write(str(cor[1]))
+            agent.click(go_to[0], go_to[1])
+            sleep(1.3)
+            auto_focus(z_series)
+            sleep(1.3)
 
         '''Open measurement setup'''
-        agent.click(752, 48)
-        agent.click(752, 338)
-        agent.click(280, 48)
-        agent.click(280, 153)
+        agent.click(window[0], window[1])
+        agent.click(window_1[0], window_1[1])
+        agent.click(measurement[0], measurement[1])
+        agent.click(setup_measurement[0], setup_measurement[1])
         sleep(1.5)
 
         '''Set up coarse file path'''
-        agent.click(245, 69)
-        agent.click(313, 152)
+        agent.click(file[0], file[1])
+        agent.click(file_name[0], file_name[1])
         agent.hotkey('ctrl', 'a')
         agent.press('backspace')
         coarse_map_path = os.path.join(save_folder_path, 'map_' +
@@ -334,12 +389,15 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
         Fill_area(str(cor[0]), str(cor[0] + 300.0),
                   str(cor[1]), str(cor[1] + 300.0))
 
-        agent.click(455, 492)
+        agent.click(ok[0], ok[1])
         sleep(1.5)
 
         '''Running coarse map'''
         agent.press('f5')
-        sleep(860)
+        if app_restart == 0:
+            sleep(890)
+        else:
+            sleep(860)
 
         '''Extract positions for fine map'''
         positions_for_fine_map = extract_fine_map_positions(coarse_map_path)
@@ -350,18 +408,18 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
             fine_map_index = 1
 
             '''Activate fine map window'''
-            agent.click(752, 48)
-            agent.click(752, 363)
+            agent.click(window[0], window[1])
+            agent.click(window_2[0], window_2[1])
             for [x_pos, y_pos] in positions_for_fine_map:
 
                 '''Go to fine map setup'''
-                agent.click(280, 48)
-                agent.click(280, 153)
+                agent.click(measurement[0], measurement[1])
+                agent.click(setup_measurement[0], setup_measurement[1])
                 sleep(1.5)
                 
                 '''Set up fine map path'''
-                agent.click(245, 69)
-                agent.click(313, 152)
+                agent.click(file[0], file[1])
+                agent.click(file_name[0], file_name[1])
                 agent.hotkey('ctrl', 'a')
                 agent.press('backspace')
                 fine_map_path = os.path.join(save_folder_path, 'map_' +
@@ -375,7 +433,7 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
                 Fill_area(str(x_pos - 2.0), str(x_pos + 2.0),
                           str(y_pos - 2.0), str(y_pos + 2.0))
                 
-                agent.click(455, 492)
+                agent.click(ok[0], ok[1])
                 sleep(1.2)
 
                 '''Running fine map'''
@@ -391,24 +449,24 @@ def Run(save_folder_path, sample_name_str, area_cor, z_range, coarse_id_from=1):
                 fine_map_restart += 1
                 if fine_map_restart == 25:
                     fine_map_restart = 0
-                    agent.click(752, 48)
-                    agent.click(752, 104)
+                    agent.click(window[0], window[1])
+                    agent.click(window_close[0], window_close[1])
                     sleep(2.5)
                     open_fine_map_template()
-                    
+
         coarse_id_from += 1
 
         '''Restart WiRE'''
         app_restart += 1
         if app_restart == 4:
-            restart_WiRE()
+            restart_WiRE(cor)
             app_restart = 0
             fine_map_restart = 0
 
         '''turn on light and camera'''
-        agent.click(35, 727)
+        agent.click(camera[0], camera[1])
         sleep(3)
         
-        
+
 agent.FAILSAFE = True
-agent.confirm('Start running', 'Confirm', buttons=['OK'])
+agent.confirm('Start running ?', 'Confirm', buttons=['OK'])

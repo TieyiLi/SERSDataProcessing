@@ -5,7 +5,7 @@ from scipy.sparse import spdiags, linalg, csc_matrix
 from scipy.fft import fft
 from scipy.signal import savgol_filter
 from renishawWiRE import WDFReader
-import os
+import os, cv2
 
 
 '''BUTTON POSITIONS'''
@@ -40,8 +40,8 @@ ok = [455, 492]
 cancel = [564, 492]
 
 '''Sample review'''
-camera = [85, 857]
-light = [123, 857]
+button_upper_left = [5, 708]
+button_lower_right = [834, 999]
 view_upper_left = [67, 189]
 view_lower_right = [814, 667]
 
@@ -60,7 +60,7 @@ main_window = [1839, 555]
 
 
 def check_button_positions():
-    sleep(5)
+    sleep(3)
     
     agent.click(window[0], window[1])
     agent.moveTo(window_1[0], window_1[1])
@@ -68,9 +68,8 @@ def check_button_positions():
     agent.moveTo(window_2[0], window_2[1])
     sleep(1)
     agent.click(window_1[0], window_1[1])
-    sleep(4)
+    sleep(2)
     
-    agent.click()
     agent.click(measurement[0], measurement[1])
     agent.moveTo(setup_measurement[0], setup_measurement[1])
     agent.click()
@@ -88,17 +87,20 @@ def check_button_positions():
     agent.moveTo(y_last[0], y_last[1])
     sleep(1)
     agent.click(cancel[0], cancel[1])
-    sleep(4)
+    sleep(2)
 
-    agent.moveTo(camera[0], camera[1])
+    agent.moveTo(button_upper_left[0], button_upper_left[1])
     sleep(1)
-    agent.moveTo(light[0], light[1])
-    sleep(4)
+    agent.moveTo(button_lower_right[0], button_lower_right[1])
+    sleep(2)
+    camera_x, camera_y = find_camera_button(button_upper_left, button_lower_right)
+    agent.moveTo(camera_x, camera_y)
+    sleep(2)
 
     agent.moveTo(view_upper_left[0], view_upper_left[1])
     sleep(1)
     agent.moveTo(view_lower_right[0], view_lower_right[1])
-    sleep(4)
+    sleep(2)
 
     agent.moveTo(x_coor[0], x_coor[1])
     sleep(1)
@@ -107,7 +109,7 @@ def check_button_positions():
     agent.moveTo(z_coor[0], z_coor[1])
     sleep(1)
     agent.moveTo(go_to[0], go_to[1])
-    sleep(4)
+    sleep(2)
 
     agent.click(measurement[0], measurement[1])
     agent.click(open_template[0], open_template[1])
@@ -120,7 +122,7 @@ def check_button_positions():
     sleep(1)
     agent.click(template_cancel[0], template_cancel[1])
 
-    
+
 def auto_focus(z_series):
     scores = []
     for z in z_series:
@@ -130,7 +132,9 @@ def auto_focus(z_series):
         agent.write(str(z))
         agent.click(go_to[0], go_to[1])
         sleep(1.0)
-        image = agent.screenshot(region=(view_upper_left[0], view_upper_left[1], view_lower_right[0], view_lower_right[1])).convert('L')
+        image = agent.screenshot(region=(view_upper_left[0], view_upper_left[1],
+                                         view_lower_right[0]-view_upper_left[0],
+                                         view_lower_right[1]-view_upper_left[1])).convert('L')
         im_array = np.asarray(image, dtype=np.int32)
         gy, gx = np.gradient(im_array)
         sharpness = np.mean(np.sqrt(gx**2 + gy**2))
@@ -146,7 +150,9 @@ def auto_focus(z_series):
         agent.write(str(z))
         agent.click(go_to[0], go_to[1])
         sleep(1.0)
-        image = agent.screenshot(region=(view_upper_left[0], view_upper_left[1], view_lower_right[0], view_lower_right[1])).convert('L')
+        image = agent.screenshot(region=(view_upper_left[0], view_upper_left[1],
+                                         view_lower_right[0]-view_upper_left[0],
+                                         view_lower_right[1]-view_upper_left[1])).convert('L')
         im_array = np.asarray(image, dtype=np.int32)
         gy, gx = np.gradient(im_array)
         sharpness = np.mean(np.sqrt(gx**2 + gy**2))
@@ -331,6 +337,30 @@ def restart_WiRE(cor):
     agent.moveTo(task_bar_right[0], task_bar_right[1], 2)
     agent.moveTo(main_window[0], main_window[1])
     sleep(0.5)
+
+
+def find_camera_button(button_upper_left, button_lower_right):
+    img = np.asarray(agent.screenshot(region=(button_upper_left[0],
+                                              button_upper_left[1],
+                                              button_lower_right[0] - button_upper_left[0],
+                                              button_lower_right[1] - button_upper_left[1])))
+    imgGrey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, thr = cv2.threshold(imgGrey, 150, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(thr, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    button_x_list = []
+    button_y_list = []
+    for contour in contours:
+        approx = cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour, True), True)
+        if len(approx) == 4:
+            x, y, w, h = cv2.boundingRect(approx)
+            aspect_ratio = w / h
+            if aspect_ratio >= 0.8 and aspect_ratio <= 1.2 and w > 10:
+                button_x_list.append(x)
+                button_y_list.append(y)
+                cv2.drawContours(img, [approx], 0, (0, 230, 0), 3)
+    return [button_upper_left[0]+15+min(button_x_list),
+            button_upper_left[1]+20+min(button_y_list)]
+
     
 
 def Run(save_folder_path, sample_name_str, area_cor, coarse_id_from=1):
@@ -341,7 +371,8 @@ def Run(save_folder_path, sample_name_str, area_cor, coarse_id_from=1):
         raise FileNotFoundError('Folder path does not exist!')
     ref_cor = gen_coarse_coordinates(area_cor[0], area_cor[1])
     print(ref_cor)
-    z_series = np.arange(-15, 15, 1)
+    z_series = np.arange(-25, 40, 1)
+    camera = find_camera_button(button_upper_left, button_lower_right)
     
     '''Monitor software status'''
     fine_map_restart = 0
@@ -462,11 +493,12 @@ def Run(save_folder_path, sample_name_str, area_cor, coarse_id_from=1):
             restart_WiRE(cor)
             app_restart = 0
             fine_map_restart = 0
+            camera = find_camera_button(button_upper_left, button_lower_right)
 
         '''turn on light and camera'''
         agent.click(camera[0], camera[1])
         sleep(3)
-        
+
 
 agent.FAILSAFE = True
-agent.confirm('Start running ?', 'Confirm', buttons=['OK'])
+agent.confirm('Start running?', 'Confirm', buttons=['OK'])
